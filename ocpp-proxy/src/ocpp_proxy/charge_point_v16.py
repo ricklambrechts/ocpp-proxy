@@ -34,9 +34,9 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
     async def start(self) -> None:
         """Initiate the BootNotification sequence and handle incoming messages."""
         # Send BootNotification to charger (as charge point)
-        await self.call_boot_notification(
+        await self.call(call.BootNotification(
             charge_point_model="EVProxy", charge_point_vendor="OCPPProxy"
-        )
+        ))
         # Keep the listener alive
         while True:
             await asyncio.sleep(1)
