@@ -11,6 +11,10 @@ arch:
   - armhf
 startup: services
 boot: auto
+ports:
+  9000/tcp: 9000
+ports_description:
+  9000/tcp: Used for OCPP Proxy
 options:
   allow_shared_charging: true
   preferred_provider: ''
