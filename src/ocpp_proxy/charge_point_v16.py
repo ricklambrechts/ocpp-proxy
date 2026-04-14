@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from aiohttp import web
 from typing import Any
 
 from ocpp.routing import on
@@ -23,6 +24,7 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
         ha_bridge: Any = None,
         event_logger: Any = None,
     ) -> None:
+        self._connection2 = connection
         ChargePointBase.__init__(self, cp_id, connection, manager, ha_bridge, event_logger)
         OCPPChargePoint.__init__(self, cp_id, connection)
 
@@ -34,12 +36,18 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
     async def start(self) -> None:
         """Initiate the BootNotification sequence and handle incoming messages."""
         # Send BootNotification to charger (as charge point)
-        await self.call_boot_notification(
-            charge_point_model="EVProxy", charge_point_vendor="OCPPProxy"
-        )
-        # Keep the listener alive
-        while True:
-            await asyncio.sleep(1)
+        # Incoming charger connection handled by aiohttp server:
+        # charger sends BootNotification to us, so don't initiate it here.
+        if not isinstance(self._connection2, web.WebSocketResponse):
+            await self.call_boot_notification(
+                charge_point_model="EVProxy", charge_point_vendor="OCPPProxy"
+            )
+
+        await super().start()
+
+    async def call_boot_notification(self, **kwargs: Any) -> Any:
+        """Send BootNotification to the peer."""
+        return await self.call(call.BootNotification(**kwargs))
 
     async def send_remote_start_transaction(self, connector_id: int, id_tag: str) -> bool:
         """Send RemoteStartTransaction command to charger."""
