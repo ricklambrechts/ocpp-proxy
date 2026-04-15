@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from aiohttp import web
 from typing import Any
 
 from ocpp.routing import on
@@ -23,6 +24,7 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
         ha_bridge: Any = None,
         event_logger: Any = None,
     ) -> None:
+        self._connection2 = connection
         ChargePointBase.__init__(self, cp_id, connection, manager, ha_bridge, event_logger)
         OCPPChargePoint.__init__(self, cp_id, connection)
 
@@ -34,9 +36,16 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
     async def start(self) -> None:
         """Initiate the BootNotification sequence and handle incoming messages."""
         # Send BootNotification to charger (as charge point)
-        await self.call(call.BootNotification(
-            charge_point_model="EVProxy", charge_point_vendor="OCPPProxy"
-        ))
+        # Incoming charger connection handled by aiohttp server:
+        # charger sends BootNotification to us, so don't initiate it here.
+        if not isinstance(self._connection2, web.WebSocketResponse):
+            await self.call(
+                call.BootNotification(
+                    charge_point_model="EVProxy",
+                    charge_point_vendor="OCPPProxy"
+                )
+            )
+
         # Keep the listener alive
         while True:
             await asyncio.sleep(1)
