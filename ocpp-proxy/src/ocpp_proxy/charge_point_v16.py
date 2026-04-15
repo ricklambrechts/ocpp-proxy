@@ -24,6 +24,7 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
         ha_bridge: Any = None,
         event_logger: Any = None,
     ) -> None:
+        self._connection2 = connection
         ChargePointBase.__init__(self, cp_id, connection, manager, ha_bridge, event_logger)
         OCPPChargePoint.__init__(self, cp_id, connection)
 
@@ -37,7 +38,7 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
         # Send BootNotification to charger (as charge point)
         # Incoming charger connection handled by aiohttp server:
         # charger sends BootNotification to us, so don't initiate it here.
-        if not isinstance(self._connection, web.WebSocketResponse):
+        if not isinstance(self._connection2, web.WebSocketResponse):
             await self.call(
                 call.BootNotification(
                     charge_point_model="EVProxy",
