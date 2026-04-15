@@ -46,9 +46,7 @@ class ChargePointV16(ChargePointBase, OCPPChargePoint):
                 )
             )
 
-        # Keep the listener alive
-        while True:
-            await asyncio.sleep(1)
+        await super().start()
 
     async def send_remote_start_transaction(self, connector_id: int, id_tag: str) -> bool:
         """Send RemoteStartTransaction command to charger."""
