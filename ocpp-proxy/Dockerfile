@@ -1,18 +1,13 @@
 # Home Assistant add-on Dockerfile
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
+ARG BUILD_FROM=ghcr.io/home-assistant/base-python:3.14-alpine3.23
 FROM ${BUILD_FROM}
 
 # Set shell for add-on compatibility
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install system dependencies and Python packages
+# Install build dependencies and install application dependencies
 RUN \
-    apk add --no-cache \
-        python3 \
-        py3-pip \
-        py3-setuptools \
-        py3-wheel \
-    && apk add --no-cache --virtual .build-dependencies \
+    apk add --no-cache --virtual .build-dependencies \
         gcc \
         musl-dev \
         python3-dev
@@ -24,7 +19,7 @@ COPY pyproject.toml poetry.lock* ./
 
 # Install Poetry and production dependencies only
 RUN \
-    pip3 install poetry \
+    pip3 install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
     && poetry install --no-root --only main --no-interaction --no-ansi \
     && apk del .build-dependencies
