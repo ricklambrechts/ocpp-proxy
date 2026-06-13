@@ -95,7 +95,7 @@ class TestOCPPServiceManager:
 
         with (
             patch(
-                "src.ocpp_proxy.ocpp_service_manager.websockets.connect", new_callable=AsyncMock
+                "src.ocpp_proxy.ocpp_service_manager.connect", new_callable=AsyncMock
             ) as mock_connect,
             patch(
                 "src.ocpp_proxy.ocpp_service_manager.OCPPServiceFactory.create_service_client"
@@ -112,7 +112,7 @@ class TestOCPPServiceManager:
             # Should connect with correct headers
             mock_connect.assert_called_once_with(
                 "wss://test.com/ocpp",
-                extra_headers={"Authorization": "Bearer test_token"},
+                additional_headers={"Authorization": "Bearer test_token"},
                 subprotocols=["ocpp1.6"],
                 ping_interval=30,
                 ping_timeout=10,
@@ -136,7 +136,7 @@ class TestOCPPServiceManager:
 
         with (
             patch(
-                "src.ocpp_proxy.ocpp_service_manager.websockets.connect", new_callable=AsyncMock
+                "src.ocpp_proxy.ocpp_service_manager.connect", new_callable=AsyncMock
             ) as mock_connect,
             patch(
                 "src.ocpp_proxy.ocpp_service_manager.OCPPServiceFactory.create_service_client"
@@ -152,7 +152,7 @@ class TestOCPPServiceManager:
 
             # Should connect with basic auth header
             call_args = mock_connect.call_args
-            headers = call_args[1]["extra_headers"]
+            headers = call_args[1]["additional_headers"]
             assert "Authorization" in headers
             assert headers["Authorization"].startswith("Basic ")
 
@@ -164,7 +164,7 @@ class TestOCPPServiceManager:
 
         with (
             patch(
-                "src.ocpp_proxy.ocpp_service_manager.websockets.connect", new_callable=AsyncMock
+                "src.ocpp_proxy.ocpp_service_manager.connect", new_callable=AsyncMock
             ) as mock_connect,
             patch(
                 "src.ocpp_proxy.ocpp_service_manager.OCPPServiceFactory.create_service_client"
@@ -180,7 +180,7 @@ class TestOCPPServiceManager:
 
             # Should connect without auth headers
             call_args = mock_connect.call_args
-            headers = call_args[1]["extra_headers"]
+            headers = call_args[1]["additional_headers"]
             assert "Authorization" not in headers
 
     @pytest.mark.unit
@@ -202,7 +202,7 @@ class TestOCPPServiceManager:
         service_config = {"id": "test_service", "url": "wss://test.com/ocpp", "auth_type": "none"}
 
         with patch(
-            "src.ocpp_proxy.ocpp_service_manager.websockets.connect", new_callable=AsyncMock
+            "src.ocpp_proxy.ocpp_service_manager.connect", new_callable=AsyncMock
         ) as mock_connect:
             mock_connect.side_effect = Exception("Connection failed")
 

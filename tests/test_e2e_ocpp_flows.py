@@ -535,17 +535,15 @@ class TestOCPPServiceFlows:
 
         manager = OCPPServiceManager(config)
 
-        # Mock websockets.connect to capture auth headers
+        # Mock OCPPServiceManager.connect to capture auth headers
         auth_headers = []
 
-        async def mock_connect(url, extra_headers=None, **kwargs):
-            auth_headers.append(extra_headers or {})
+        async def mock_connect(url, additional_headers=None, **kwargs):
+            auth_headers.append(additional_headers or {})
             # Return a mock connection
             return Mock()
 
-        with patch(
-            "src.ocpp_proxy.ocpp_service_manager.websockets.connect", side_effect=mock_connect
-        ):
+        with patch("src.ocpp_proxy.ocpp_service_manager.connect", side_effect=mock_connect):
             # Test token auth
             await manager.connect_service("token_service", config.ocpp_services[0])
 
