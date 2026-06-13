@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 from unittest.mock import patch
@@ -35,6 +36,46 @@ class TestConfig:
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(config_data, f)
+            config_path = f.name
+
+        try:
+            config = Config(config_path)
+            assert config.allow_shared_charging
+            assert config.preferred_provider == "test_provider"
+            assert config.blocked_providers == ["bad_provider"]
+            assert config.allowed_providers == ["good_provider"]
+            assert config.presence_sensor == "binary_sensor.presence"
+            assert config.override_input_boolean == "input_boolean.override"
+            assert config.rate_limit_seconds == 30
+            assert len(config.ocpp_services) == 1
+            assert config.ocpp_services[0]["id"] == "test_service"
+        finally:
+            os.unlink(config_path)
+
+    @pytest.mark.unit
+    def test_config_with_valid_json(self):
+        """Test loading valid JSON configuration."""
+        config_data = {
+            "allow_shared_charging": True,
+            "preferred_provider": "test_provider",
+            "blocked_providers": ["bad_provider"],
+            "allowed_providers": ["good_provider"],
+            "presence_sensor": "binary_sensor.presence",
+            "override_input_boolean": "input_boolean.override",
+            "rate_limit_seconds": 30,
+            "ocpp_services": [
+                {
+                    "id": "test_service",
+                    "url": "wss://test.com/ocpp",
+                    "auth_type": "token",
+                    "token": "test_token",
+                    "enabled": True,
+                }
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(config_data, f)
             config_path = f.name
 
         try:
