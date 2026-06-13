@@ -23,6 +23,8 @@ options:
   presence_sensor: ''
   override_input_boolean: ''
   rate_limit_seconds: 10
+  ocpp_version: '1.6'
+  auto_detect_ocpp_version: true
   ocpp_services: []
 schema:
   allow_shared_charging: bool
@@ -34,9 +36,12 @@ schema:
   presence_sensor: str?
   override_input_boolean: str?
   rate_limit_seconds: int(1,300)
+  ocpp_version: list(1.6|2.0.1)
+  auto_detect_ocpp_version: bool
   ocpp_services:
     - id: str
       url: str
+      version: list(1.6|2.0.1)?
       auth_type: list(none|basic|token)?
       username: str?
       password: str?
