@@ -1,3 +1,4 @@
+import json
 import os
 
 import yaml
@@ -5,16 +6,22 @@ import yaml
 
 class Config:
     """
-    Load configuration from Home Assistant add-on options or standalone YAML file.
+    Load configuration from Home Assistant add-on options or standalone config file.
+    JSON is used by default for add-on options; YAML is still supported for
+    standalone files.
     """
 
     def __init__(self, path: str | None = None):
-        # Home Assistant add-on options are stored in /data/options.yaml by default
-        default_path = os.getenv("ADDON_CONFIG_FILE", "/data/options.yaml")
+        # Home Assistant add-on options are mounted to /data/options.json by default
+        default_path = os.getenv("ADDON_CONFIG_FILE", "/data/options.json")
         config_path = path or default_path
         try:
-            with open(config_path) as f:
-                self._cfg = yaml.safe_load(f) or {}
+            if os.fspath(config_path).lower().endswith(".json"):
+                with open(config_path, encoding="utf-8") as f:
+                    self._cfg = json.load(f) or {}
+            else:
+                with open(config_path, encoding="utf-8") as f:
+                    self._cfg = yaml.safe_load(f) or {}
         except FileNotFoundError:
             self._cfg = {}
 
@@ -45,7 +52,7 @@ class Config:
     @property
     def disallowed_providers(self) -> list[str]:
         """Return list of provider IDs that are always blocked.
-        
+
         (deprecated: use blocked_providers)
         """
         return self.blocked_providers
