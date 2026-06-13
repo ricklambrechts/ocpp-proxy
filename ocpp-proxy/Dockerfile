@@ -22,13 +22,11 @@ WORKDIR /app
 COPY src/ ./src/
 COPY pyproject.toml poetry.lock* ./
 
-# Install Python dependencies with break-system-packages flag
+# Install Poetry and production dependencies only
 RUN \
-    pip3 install --break-system-packages \
-        "ocpp>=2.0.0" \
-        "aiohttp>=3.9.0" \
-        "websockets>=12.0" \
-        "PyYAML>=6.0.0" \
+    pip3 install poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-root --only main --no-interaction --no-ansi \
     && apk del .build-dependencies
 
 # Copy and setup run script
