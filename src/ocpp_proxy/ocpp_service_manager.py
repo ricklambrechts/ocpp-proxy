@@ -2,12 +2,12 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Any, cast
 
-import websockets
-
 if TYPE_CHECKING:
     from websockets.typing import Subprotocol
 else:
     Subprotocol = str
+
+from websockets.asyncio.client import connect
 
 from .charge_point_factory import OCPPServiceFactory
 
@@ -73,10 +73,10 @@ class OCPPServiceManager:
                 subprotocols = [cast("Subprotocol", "ocpp2.0.1")]
 
             # Create WebSocket connection
-            connection = await websockets.connect(
+            connection = await connect(
                 url,
-                extra_headers=auth_headers,
                 subprotocols=subprotocols,
+                additional_headers=auth_headers,
                 ping_interval=30,
                 ping_timeout=10,
             )

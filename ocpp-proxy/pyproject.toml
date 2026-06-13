@@ -10,7 +10,7 @@ packages = [{include = "ocpp_proxy", from = "src"}]
 python = ">=3.11,<4.0"
 ocpp = ">=2.0.0"
 aiohttp = ">=3.9.0"
-websockets = ">=12.0"
+websockets = ">=16.0,<17.0"
 PyYAML = ">=6.0.0"
 
 [tool.poetry.group.dev.dependencies]
